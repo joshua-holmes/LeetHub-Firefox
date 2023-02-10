@@ -502,33 +502,29 @@ function parseStats() {
   return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
-document.addEventListener('click', (event) => {
-  const element = event.target;
-  const oldPath = window.location.pathname;
+function delay(time) {
+  return new Promise(function(resolve) { 
+      setTimeout(resolve, time)
+  });
+}
 
+document.addEventListener('click', async (event) => {
+  const element = event.target;
+  
   /* Act on Post button click */
-  /* Complex since "New" button shares many of the same properties as "Post button */
-  if (
-    element.classList.contains('icon__3Su4') ||
-    element.parentElement.classList.contains('icon__3Su4') ||
-    element.parentElement.classList.contains(
-      'btn-content-container__214G',
-    ) ||
-    element.parentElement.classList.contains('header-right__2UzF')
-  ) {
-    setTimeout(function () {
-      /* Only post if post button was clicked and url changed */
-      if (
-        oldPath !== window.location.pathname &&
-        oldPath ===
-          window.location.pathname.substring(0, oldPath.length) &&
-        !Number.isNaN(window.location.pathname.charAt(oldPath.length))
-      ) {
+  if ( element.textContent === 'Submit' ) {
+    /* Wait some number of seconds for "Accepted" message to pop up with
+     the iconic checkmark next to it */
+    const secondsToWait = 15;
+    for (let i = 0; i < secondsToWait; i++) {
+      const span = document.querySelector('div.text-green-s span');
+      const neighborSVGValue = span?.previousElementSibling?.firstChild?.attributes?.d?.value;
+      const checkmarkSVGValue = 'M20 12.005v-.828a1 1 0 112 0v.829a10 10 0 11-5.93-9.14 1 1 0 01-.814 1.826A8 8 0 1020 12.005zM8.593 10.852a1 1 0 011.414 0L12 12.844l8.293-8.3a1 1 0 011.415 1.413l-9 9.009a1 1 0 01-1.415 0l-2.7-2.7a1 1 0 010-1.414z';
+      if (span.textContent === 'Accepted' && neighborSVGValue === checkmarkSVGValue) {
         const date = new Date();
         const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
         const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
         const problemName = window.location.pathname.split('/')[2]; // must be true.
-
         uploadGit(
           addition,
           problemName,
@@ -536,8 +532,12 @@ document.addEventListener('click', (event) => {
           discussionMsg,
           'update',
         );
+        break;
       }
-    }, 1000);
+      await delay(1000);
+    }
+
+
   }
 });
 
